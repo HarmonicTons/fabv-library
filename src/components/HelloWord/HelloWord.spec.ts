@@ -1,3 +1,3 @@
 it("should", () => {
-    expect(true);
-})
+  expect(true);
+});
