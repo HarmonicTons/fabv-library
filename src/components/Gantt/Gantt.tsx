@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useCallback, useState, Component } from "react";
-import { gantt } from 'dhtmlx-gantt';
-import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
+import React, { Component } from "react";
+import { gantt } from "dhtmlx-gantt";
+import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
 export interface GanttProps {
-    tasks: {
-        data: any[];
-        links: any[];
-    };
-    onDataUpdated: any;
-    zoom: number;
+  tasks: {
+    data: any[];
+    links: any[];
+  };
+  onDataUpdated: any;
+  zoom: number;
 }
 export class Gantt extends Component<GanttProps> {
-    ganttContainer: any;
+  ganttContainer: any;
 
   constructor(props: GanttProps) {
     super(props);
@@ -24,30 +24,30 @@ export class Gantt extends Component<GanttProps> {
     gantt.ext.zoom.init({
       levels: [
         {
-          name: 'Hours',
+          name: "Hours",
           scale_height: 60,
           min_column_width: 30,
           scales: [
-            { unit: 'day', step: 1, format: '%d %M' },
-            { unit: 'hour', step: 1, format: '%H' }
+            { unit: "day", step: 1, format: "%d %M" },
+            { unit: "hour", step: 1, format: "%H" }
           ]
         },
         {
-          name: 'Days',
+          name: "Days",
           scale_height: 60,
           min_column_width: 70,
           scales: [
-            { unit: 'week', step: 1, format: 'Week #%W' },
-            { unit: 'day', step: 1, format: '%d %M' }
+            { unit: "week", step: 1, format: "Week #%W" },
+            { unit: "day", step: 1, format: "%d %M" }
           ]
         },
         {
-          name: 'Months',
+          name: "Months",
           scale_height: 60,
           min_column_width: 70,
           scales: [
-            { unit: "month", step: 1, format: '%F' },
-            { unit: 'week', step: 1, format: '#%W' }
+            { unit: "month", step: 1, format: "%F" },
+            { unit: "week", step: 1, format: "#%W" }
           ]
         }
       ]
@@ -65,17 +65,19 @@ export class Gantt extends Component<GanttProps> {
      * item: data object object
      */
     const onDataUpdated = this.props.onDataUpdated;
-    this.dataProcessor = gantt.createDataProcessor((type: any, action: any, item: any, id: any) => {
-      return new Promise((resolve) => {
-        if (onDataUpdated) {
-          onDataUpdated(type, action, item, id);
-        }
+    this.dataProcessor = gantt.createDataProcessor(
+      (type: any, action: any, item: any, id: any) => {
+        return new Promise(resolve => {
+          if (onDataUpdated) {
+            onDataUpdated(type, action, item, id);
+          }
 
-        // if onDataUpdated changes returns a permanent id of the created item, you can return it from here so dhtmlxGantt could apply it
-        // resolve({id: databaseId});
-        return resolve();
-      });
-    });
+          // if onDataUpdated changes returns a permanent id of the created item, you can return it from here so dhtmlxGantt could apply it
+          // resolve({id: databaseId});
+          return resolve();
+        });
+      }
+    );
   }
 
   shouldComponentUpdate(nextProps: any) {
@@ -102,8 +104,10 @@ export class Gantt extends Component<GanttProps> {
     this.setZoom(zoom);
     return (
       <div
-        ref={(input) => { this.ganttContainer = input }}
-        style={{ width: '100%', height: '100%' }}
+        ref={input => {
+          this.ganttContainer = input;
+        }}
+        style={{ width: "100%", height: "100%" }}
       ></div>
     );
   }
