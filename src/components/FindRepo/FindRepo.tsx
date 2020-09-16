@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Repository from "./Repository";
 import { useAsyncFn } from "react-use";
 import axios from "axios";
+import "@fortawesome/fontawesome-free/js/all.js";
+import * as _ from "lodash";
+
+export interface FindRepoProps {
+  debounceTimeInMs?: number;
+}
 
 export interface IRepository {
   id: number;
@@ -24,9 +30,14 @@ export interface GithubResponse {
   items: Array<IRepository>;
 }
 
-export const FindRepo: React.FC = () => {
+export const FindRepo: React.FC<FindRepoProps> = ({
+  debounceTimeInMs = 200
+}) => {
   const [searchInput, setSearchInput] = useState("");
-  const [{ value: repositories }, fetchRepositories] = useAsyncFn(async () => {
+  const [
+    { value: repositories, loading, error },
+    fetchRepositories
+  ] = useAsyncFn(async (searchInput: string) => {
     if (searchInput === "") {
       return [];
     }
@@ -34,12 +45,16 @@ export const FindRepo: React.FC = () => {
       `https://api.github.com/search/repositories?q=${searchInput}&sort=stars&order=desc`
     );
     return response.data.items;
-  }, [searchInput]);
+  }, []);
+  const debouncedFetchRepositories = useCallback(
+    _.debounce(fetchRepositories, debounceTimeInMs),
+    [fetchRepositories]
+  );
   useEffect(() => {
     if (searchInput.length < 3) {
       return;
     }
-    fetchRepositories();
+    debouncedFetchRepositories(searchInput);
   }, [searchInput]);
   return (
     <div>
@@ -49,13 +64,21 @@ export const FindRepo: React.FC = () => {
         value={searchInput}
         onChange={e => setSearchInput(e.target.value)}
       />
-      <ul>
-        {repositories?.map(repo => (
-          <li key={repo.name}>
-            <Repository repository={repo} />
-          </li>
-        ))}
-      </ul>
+      {loading && (
+        <div data-testid="spinner">
+          <i className="fas fa-circle-notch fa-spin"></i>
+        </div>
+      )}
+      {error && <div style={{ color: "red" }}>{error.message}</div>}
+      {!loading && (
+        <ul>
+          {repositories?.map(repo => (
+            <li key={repo.name}>
+              <Repository repository={repo} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
